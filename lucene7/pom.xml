@@ -6,14 +6,14 @@
 		<artifactId>search-entire</artifactId>
 		<version>0.0.1</version>
 	</parent>	
-	<artifactId>lucene5</artifactId>
+	<artifactId>lucene7</artifactId>
 	<packaging>jar</packaging>
-	<name>lucene5</name>
+	<name>lucene7</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		
 		<com.hua.lucene.version>0.0.1</com.hua.lucene.version>
-		<lucene.version>5.1.0</lucene.version>		
+		<lucene.version>7.4.0</lucene.version>		
 	</properties>
 
 	<dependencies>
