@@ -5,7 +5,7 @@
  * @author qye.zheng
  *  version 1.0
  */
-package com.hua.test.lucene;
+package com.hua.test.demo;
 
 // 静态导入
 import static org.junit.Assert.assertArrayEquals;
@@ -108,7 +108,7 @@ public final class Lucene5Test extends BaseTest {
 						&& textFiles[i].getName().endsWith(".txt")) {
 					System.out.println("File "
 							+ textFiles[i].getCanonicalPath() + "正在被索引....");
-					String temp = FileReaderAll(
+					String temp = fileReaderAll(
 							textFiles[i].getCanonicalPath(), Constant.CHART_SET_UTF_8);
 					System.out.println(temp);
 					Document document = new Document();
@@ -150,7 +150,7 @@ public final class Lucene5Test extends BaseTest {
 	public void testCreateIndex() {
 		try {
 			// source目录: 存放待索引的文件.
-			Path sourceFile = Paths.get(sourcePath);
+			Path sourceFilePath = Paths.get(sourcePath);
 
 			// index目录: 存放索引文件.
 			Path indexFilePath = Paths.get(indexPath);
@@ -166,7 +166,7 @@ public final class Lucene5Test extends BaseTest {
 			iwc.setOpenMode(OpenMode.CREATE);
 
 			IndexWriter indexWriter = new IndexWriter(dir, iwc);
-			Iterator<Path> it = sourceFile.iterator();
+			Iterator<Path> it = sourceFilePath.iterator();
 			Path path = null;
 			// 增加document到索引去
 			while (it.hasNext())
@@ -212,7 +212,7 @@ public final class Lucene5Test extends BaseTest {
 		}
 	}
 
-	public static String FileReaderAll(String FileName, String charset)
+	public static String fileReaderAll(String FileName, String charset)
 			throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
 				new FileInputStream(FileName), charset));

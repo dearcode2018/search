@@ -1,6 +1,6 @@
 /**
  * 描述: 
- * LuceneUtilTest.java
+ * AnalyzerTest.java
  * 
  * @author qye.zheng
  *  version 1.0
@@ -24,23 +24,16 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.hua.test.BaseTest;
-import com.hua.util.LuceneUtil;
-import com.hua.util.ProjectUtil;
 
 
 /**
  * 描述: 
  * 
  * @author qye.zheng
- * LuceneUtilTest
+ * AnalyzerTest
  */
-public final class LuceneUtilTest extends BaseTest {
+public final class AnalyzerTest extends BaseTest {
 
-	private String docPath = ProjectUtil.getAbsolutePath("/doc/source/",
-			true);
-
-	private String indexPath = ProjectUtil.getAbsolutePath("/doc/index/", true);	
-	
 	/**
 	 * 
 	 * 描述: 
@@ -48,47 +41,12 @@ public final class LuceneUtilTest extends BaseTest {
 	 * 
 	 */
 	@Test
-	public void testLuceneUtil() {
+	public void testAnalyzer() {
 		try {
-			LuceneUtil.createIndex(docPath, indexPath, true);
-			String field = "contents";
-			int repeat = 1;
-			/**
-			 * 只要有一个字符 存在一个文档，即可视为
-			 * 找到命中
-			 */
-			String queryString = "三溪站";
-			queryString = "西江";
-			queryString = "黄埔大道";
-			int n = 100;
-			LuceneUtil.search(indexPath, field, repeat, queryString, n);
+			
+			
 		} catch (Exception e) {
-			log.error("testLuceneUtil =====> ", e);
-		}
-	}
-	
-	/**
-	 * 
-	 * 描述: 
-	 * @author qye.zheng
-	 * 
-	 */
-	@Test
-	public void testSearch() {
-		try {
-			String field = "contents";
-			int repeat = 1;
-			/**
-			 * 只要有一个字符 存在一个文档，即可视为
-			 * 找到命中
-			 */
-			String queryString = "三溪站";
-			queryString = "西江";
-			queryString = "黄埔大道";
-			int n = 100;
-			LuceneUtil.search(indexPath, field, repeat, queryString, n);
-		} catch (Exception e) {
-			log.error("testSearch =====> ", e);
+			log.error("testAnalyzer =====> ", e);
 		}
 	}
 	

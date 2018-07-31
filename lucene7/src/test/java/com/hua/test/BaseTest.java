@@ -24,6 +24,9 @@ import com.hua.log.BaseLog;
  */
 //@RunWith()
 public class BaseTest extends BaseLog {
+	
+	protected static final String INDEX_PATH_PREFIX = "./target";
+	
 	/**
 	 * 
 	 * 描述: [所有测试]开始之前运行

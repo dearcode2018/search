@@ -6,7 +6,32 @@
  */
 package com.hua.test.demo;
 
- /**
+ import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Date;
+
+import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
+import org.apache.lucene.document.StringField;
+import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.IndexWriterConfig.OpenMode;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+
+import com.hua.util.ProjectUtil;
+/**
 
 package org.apache.lucene.demo;
 
@@ -26,32 +51,8 @@ package org.apache.lucene.demo;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Date;
-
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.StringField;
-import org.apache.lucene.document.TextField;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.IndexWriterConfig.OpenMode;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.analysis.Analyzer;
 
 /** Index all text files under a directory.
  * <p>
@@ -60,45 +61,25 @@ import org.apache.lucene.store.FSDirectory;
  */
 public class IndexFiles {
   
+	private static String docsPath = ProjectUtil.getAbsolutePath("/doc/source/",
+			true);
+
+	private static String indexPath = ProjectUtil.getAbsolutePath("/doc/index/", true);
+	
   private IndexFiles() {}
 
   /** Index all text files under a directory. */
   public static void main(String[] args) {
-    String usage = "java org.apache.lucene.demo.IndexFiles"
-                 + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update]\n\n"
-                 + "This indexes the documents in DOCS_PATH, creating a Lucene index"
-                 + "in INDEX_PATH that can be searched with SearchFiles";
-    String indexPath = "index";
-    String docsPath = null;
     boolean create = true;
-    for(int i=0;i<args.length;i++) {
-      if ("-index".equals(args[i])) {
-        indexPath = args[i+1];
-        i++;
-      } else if ("-docs".equals(args[i])) {
-        docsPath = args[i+1];
-        i++;
-      } else if ("-update".equals(args[i])) {
-        create = false;
-      }
-    }
-
-    if (docsPath == null) {
-      System.err.println("Usage: " + usage);
-      System.exit(1);
-    }
-
     final Path docDir = Paths.get(docsPath);
     if (!Files.isReadable(docDir)) {
       System.out.println("Document directory '" +docDir.toAbsolutePath()+ "' does not exist or is not readable, please check the path");
-      System.exit(1);
     }
-    
     Date start = new Date();
     try {
       System.out.println("Indexing to directory '" + indexPath + "'...");
 
-      Directory dir = FSDirectory.open(Paths.get(indexPath));
+      Directory indexDir = FSDirectory.open(Paths.get(indexPath));
       Analyzer analyzer = new StandardAnalyzer();
       IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 
@@ -118,7 +99,7 @@ public class IndexFiles {
       //
       // iwc.setRAMBufferSizeMB(.0);
 
-      IndexWriter writer = new IndexWriter(dir, iwc);
+      IndexWriter writer = new IndexWriter(indexDir, iwc);
       indexDocs(writer, docDir);
 
       // NOTE: if you want to maximize search performance,
@@ -128,12 +109,10 @@ public class IndexFiles {
       // you're done adding documents to it):
       //
       // writer.forceMerge(1);
-
       writer.close();
-
+      
       Date end = new Date();
       System.out.println(end.getTime() - start.getTime() + " total milliseconds");
-
     } catch (IOException e) {
       System.out.println(" caught a " + e.getClass() +
        "\n with message: " + e.getMessage());
@@ -193,7 +172,7 @@ public class IndexFiles {
       // year/month/day/hour/minutes/seconds, down the resolution you require.
       // For example the long value 4 would mean
       // February 17, 1, 2-3 PM.
-     // doc.add(new LongField("modified", lastModified, Field.Store.NO));
+      //doc.add(new LongField("modified", lastModified, Field.Store.NO));
       
       // Add the contents of the file to a field named "contents".  Specify a Reader,
       // so that the text of the file is tokenized and indexed, but not stored.

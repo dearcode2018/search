@@ -1,8 +1,8 @@
 /**
-  * @filename SearchFiles.java
-  * @description  
-  * @version 1.0
-  * @author qye.zheng
+ * @filename SearchFilesDemo.java
+ * @description  
+ * @version 1.0
+ * @author qye.zheng
  */
 package com.hua.test.demo;
 
@@ -25,7 +25,6 @@ package com.hua.test.demo;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -43,264 +42,124 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 
+import com.hua.util.ProjectUtil;
+
 /** Simple command-line based search demo. */
 public class SearchFiles {
 
-  private SearchFiles() {}
+	private static String docsPath = ProjectUtil.getAbsolutePath(
+			"/doc/source/", true);
 
-  /** Simple command-line based search demo. */
-  public static void main(String[] args) throws Exception {
-    String usage =
-      "Usage:\tjava org.apache.lucene.demo.SearchFiles [-index dir] [-field f] [-repeat n] [-queries file] [-query string] [-raw] [-paging hitsPerPage]\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.";
-    if (args.length > 0 && ("-h".equals(args[0]) || "-help".equals(args[0]))) {
-      System.out.println(usage);
-      System.exit(0);
-    }
+	private static String index = ProjectUtil.getAbsolutePath("/doc/index/",
+			true);
 
-    String index = "index";
-    String field = "contents";
-    String queries = null;
-    int repeat = 0;
-    boolean raw = false;
-    String queryString = null;
-    int hitsPerPage = 10;
-    
-    for(int i = 0;i < args.length;i++) {
-      if ("-index".equals(args[i])) {
-        index = args[i+1];
-        i++;
-      } else if ("-field".equals(args[i])) {
-        field = args[i+1];
-        i++;
-      } else if ("-queries".equals(args[i])) {
-        queries = args[i+1];
-        i++;
-      } else if ("-query".equals(args[i])) {
-        queryString = args[i+1];
-        i++;
-      } else if ("-repeat".equals(args[i])) {
-        repeat = Integer.parseInt(args[i+1]);
-        i++;
-      } else if ("-raw".equals(args[i])) {
-        raw = true;
-      } else if ("-paging".equals(args[i])) {
-        hitsPerPage = Integer.parseInt(args[i+1]);
-        if (hitsPerPage <= 0) {
-          System.err.println("There must be at least 1 hit per page.");
-          System.exit(1);
-        }
-        i++;
-      }
-    }
-    
-    IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
-    IndexSearcher searcher = new IndexSearcher(reader);
-    Analyzer analyzer = new StandardAnalyzer();
+	private SearchFiles() {
+	}
 
-    BufferedReader in = null;
-    if (queries != null) {
-      in = Files.newBufferedReader(Paths.get(queries), StandardCharsets.UTF_8);
-    } else {
-      in = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
-    }
-    QueryParser parser = new QueryParser(field, analyzer);
-    while (true) {
-      if (queries == null && queryString == null) {                        // prompt the user
-        System.out.println("Enter query: ");
-      }
+	/** Simple command-line based search demo. */
+	public static void main(String[] args) throws Exception {
+		String field = "contents";
+		// 可以去多个文档中去查找
+		String queries = docsPath + "\\title.txt";
+		int repeat = 10;
+		boolean raw = true;
+		String queryString = "三溪";
+		// 文档中每个字符都被索引起来
+		queryString = "欢迎";
+		queryString = "体育中心";
+		
+		//queryString = "11";
+		
+		
+		// 每一页命中数
+		int hitsPerPage = 100;
 
-      String line = queryString != null ? queryString : in.readLine();
+		IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths
+				.get(index)));
+		IndexSearcher searcher = new IndexSearcher(reader);
+		Analyzer analyzer = new StandardAnalyzer();
 
-      if (line == null || line.length() == -1) {
-        break;
-      }
+		BufferedReader bufferedReader = Files.newBufferedReader(
+				Paths.get(queries), StandardCharsets.UTF_8);
+		
+		//System.out.println(bufferedReader.readLine());
+		//System.out.println(bufferedReader.readLine());
+		
+		QueryParser parser = new QueryParser(field, analyzer);
+		while (true) {
+			String line = queryString;
+			line = line.trim();
+			// 查询
+			Query query = parser.parse(line);
+			System.out.println("Searching for: " + query.toString(field));
 
-      line = line.trim();
-      if (line.length() == 0) {
-        break;
-      }
-      
-      Query query = parser.parse(line);
-      System.out.println("Searching for: " + query.toString(field));
-            
-      if (repeat > 0) {                           // repeat & time as benchmark
-        Date start = new Date();
-        for (int i = 0; i < repeat; i++) {
-          searcher.search(query, 100);
-        }
-        Date end = new Date();
-        System.out.println("Time: "+(end.getTime()-start.getTime())+"ms");
-      }
+			if (repeat > 0) { // repeat & time as benchmark
+				Date start = new Date();
+				for (int i = 0; i < repeat; i++) {
+					searcher.search(query, 1000);
+				}
+				Date end = new Date();
+				System.out.println("Time: " + (end.getTime() - start.getTime())
+						+ "ms");
+			}
 
-      doPagingSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null);
+			doPagingSearch(bufferedReader, searcher, query, hitsPerPage, raw,
+					queries == null && queryString == null);
 
-      if (queryString != null) {
-        break;
-      }
-    }
-    reader.close();
-  }
+			if (queryString != null) {
+				break;
+			}
+		}
+		reader.close();
+	}
 
-  /**
-   * This demonstrates a typical paging search scenario, where the search engine presents 
-   * pages of size n to the user. The user can then go to the next page if interested in
-   * the next hits.
-   * 
-   * When the query is executed for the first time, then only enough results are collected
-   * to fill 5 result pages. If the user wants to page beyond this limit, then the query
-   * is executed another time and all hits are collected.
-   * 
-   */
-  public static void doPagingSearch(BufferedReader in, IndexSearcher searcher, Query query, 
-                                     int hitsPerPage, boolean raw, boolean interactive) throws IOException {
- 
-    // Collect enough docs to show 5 pages
-    TopDocs results = searcher.search(query, 5 * hitsPerPage);
-    ScoreDoc[] hits = results.scoreDocs;
-    int numTotalHits = 0;
-    //int numTotalHits = results.totalHits;
-    System.out.println(numTotalHits + " total matching documents");
+	/**
+	 * This demonstrates a typical paging search scenario, where the search
+	 * engine presents pages of size n to the user. The user can then go to the
+	 * next page if interested in the next hits.
+	 * 
+	 * When the query is executed for the first time, then only enough results
+	 * are collected to fill 5 result pages. If the user wants to page beyond
+	 * this limit, then the query is executed another time and all hits are
+	 * collected.
+	 * 
+	 */
+	public static void doPagingSearch(BufferedReader in,
+			IndexSearcher searcher, Query query, int hitsPerPage, boolean raw,
+			boolean interactive) throws IOException {
 
-    int start = 0;
-    int end = Math.min(numTotalHits, hitsPerPage);
-        
-    while (true) {
-      if (end > hits.length) {
-        System.out.println("Only results 1 - " + hits.length +" of " + numTotalHits + " total matching documents collected.");
-        System.out.println("Collect more (y/n) ?");
-        String line = in.readLine();
-        if (line.length() == 0 || line.charAt(0) == 'n') {
-          break;
-        }
+		// Collect enough docs to show 5 pages
+		TopDocs results = searcher.search(query, 5 * hitsPerPage);
+		ScoreDoc[] hits = results.scoreDocs;
+		int numTotalHits = 0;
+		//int numTotalHits = results.totalHits;
+		System.out.println(numTotalHits + " total matching documents");
 
-        hits = searcher.search(query, numTotalHits).scoreDocs;
-      }
-      
-      end = Math.min(hits.length, start + hitsPerPage);
-      
-      for (int i = start; i < end; i++) {
-        if (raw) {                              // output raw format
-          System.out.println("doc="+hits[i].doc+" score="+hits[i].score);
-          continue;
-        }
+		int start = 0;
+		int end = Math.min(numTotalHits, hitsPerPage);
+		hits = searcher.search(query, numTotalHits).scoreDocs;
+		System.out.println("hits = " + hits.length);
+		end = Math.min(hits.length, start + hitsPerPage);
+		for (int i = start; i < end; i++) {
+			if (raw) { // output raw format
+				System.out.println("doc=" + hits[i].doc + " score="
+						+ hits[i].score);
+				continue;
+			}
 
-        Document doc = searcher.doc(hits[i].doc);
-        String path = doc.get("path");
-        if (path != null) {
-          System.out.println((i+1) + ". " + path);
-          String title = doc.get("title");
-          if (title != null) {
-            System.out.println("   Title: " + doc.get("title"));
-          }
-        } else {
-          System.out.println((i+1) + ". " + "No path for this document");
-        }
-                  
-      }
+			Document doc = searcher.doc(hits[i].doc);
+			String path = doc.get("path");
+			if (path != null) {
+				// System.out.println((i+1) + ". " + path);
+				String title = doc.get("title");
+				if (title != null) {
+					System.out.println("   Title: " + doc.get("title"));
+				}
+			} else {
+				System.out
+						.println((i + 1) + ". " + "No path for this document");
+			}
+		}
 
-      if (!interactive || end == 0) {
-        break;
-      }
-
-      if (numTotalHits >= end) {
-        boolean quit = false;
-        while (true) {
-          System.out.print("Press ");
-          if (start - hitsPerPage >= 0) {
-            System.out.print("(p)revious page, ");  
-          }
-          if (start + hitsPerPage < numTotalHits) {
-            System.out.print("(n)ext page, ");
-          }
-          System.out.println("(q)uit or enter number to jump to a page.");
-          
-          String line = in.readLine();
-          if (line.length() == 0 || line.charAt(0)=='q') {
-            quit = true;
-            break;
-          }
-          if (line.charAt(0) == 'p') {
-            start = Math.max(0, start - hitsPerPage);
-            break;
-          } else if (line.charAt(0) == 'n') {
-            if (start + hitsPerPage < numTotalHits) {
-              start+=hitsPerPage;
-            }
-            break;
-          } else {
-            int page = Integer.parseInt(line);
-            if ((page - 1) * hitsPerPage < numTotalHits) {
-              start = (page - 1) * hitsPerPage;
-              break;
-            } else {
-              System.out.println("No such page");
-            }
-          }
-        }
-        if (quit) break;
-        end = Math.min(numTotalHits, start + hitsPerPage);
-      }
-    }
-  }
+	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
