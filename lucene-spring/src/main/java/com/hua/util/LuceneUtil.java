@@ -22,7 +22,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-import org.apache.lucene.document.LongField;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
@@ -157,8 +156,8 @@ public final class LuceneUtil
 			doc.add(pathField);
 			
 			// 路径 字段
-			final Field lastModifiedField = new LongField(LuceneConstant.FIELD_MODIFIED, lastModified, Field.Store.NO);
-			doc.add(lastModifiedField);
+			//final Field lastModifiedField = new LongField(LuceneConstant.FIELD_MODIFIED, lastModified, Field.Store.NO);
+			//doc.add(lastModifiedField);
 			
 			final Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
 			// 内容 字段
