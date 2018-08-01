@@ -12,11 +12,12 @@
 		<!-- 模板 -->
 		<module>search-template</module>		
 		<module>search-core</module>
-		<module>elastic-search</module>
+		<module>elastic</module>
 		<module>lucene</module>		
 		<module>lucene5</module>	
 		<module>lucene7</module>	
 		<module>lucene-spring</module>
+		<module>solr</module>
 	</modules>
  
 	<!-- 公共属性 -->

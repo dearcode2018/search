@@ -1,0 +1,49 @@
+Elastic
+
+简介
+Elastic为开源的全文搜索引擎，底层基于Lucene，用于快速存储、搜索、分析海量数据.
+Elastic封装了Lucene，用户无法直接使用Lucene，须通过Rest API接口去操作Elastic.
+
+elastic 6.x已经不再推荐使用type，在一个索引库中只有一个type，elastic 7.x会去掉type.
+
+官网: https://www.elastic.co
+
+Windows环境
+1.下载zip压缩文件，解压到指定路径
+2.启动 运行 bin目录下的elasticsearch.bat
+3.修改配置
+config/elasticsearch.yml 将network.host注释去掉改成 network.host: 0.0.0.0
+在研发环境可以让所有机器访问，在生产环境则设置具体ip
+4.下载中文分词器
+# 下载
+https://codeload.github.com/medcl/elasticsearch-analysis-ik/zip/6.2.x
+bin/elasticsearch-plugin install https://github-production-release-asset-2e65be.s3.amazonaws.com/2993595/f6efc160-90f9-11e8-845d-325b2cc6f4d2?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20180801%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20180801T130109Z&X-Amz-Expires=300&X-Amz-Signature=4a781ebd95a46dfdf5b58eee9ac7ea2f74b67cb38e1d804da9b1aa2255194d91&X-Amz-SignedHeaders=host&actor_id=38157006&response-content-disposition=attachment%3B%20filename%3Delasticsearch-analysis-ik-6.3.2.zip
+5.使用postman来调用 Rest API
+
+6.下载kibana
+https://www.elastic.co/downloads/kibana
+
+
+10.访问
+http://127.0.0.1:9200
+查看所有索引:　http://127.0.0.1:9200/_cat/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
