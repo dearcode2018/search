@@ -1,0 +1,48 @@
+Apache Solr
+
+简介
+
+
+在一个机器上可以起不同端口的实例
+
+
+Windows环境搭建
+1.下载zip文件，解压
+2.启动
+#
+solr start
+# 以SolrCloud模式启动，可以指定启动多少个实例，指定各个实例的端口
+solr start -e cloud -p <指定端口，默认8983>
+
+# 停止指定端口的solr
+solr stop -p <port>
+# 停止所有端口的solr
+solr stop -all
+
+3.访问
+http://127.0.0.1:8983/solr
+
+4.加入数据
+# my_collect_01 为刚才在启动solr时在控制台创建的集合
+%SOLR_HOME%> java -jar -Dc=my_collect_01 -Dauto example\exampledocs\post.jar example\exampledocs\*
+
+5.删除集合
+solr delete -c <collect_name>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
